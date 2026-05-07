@@ -3,10 +3,10 @@ import { useState, useEffect, useRef } from 'react';
 import { db } from '../lib/firebase';
 import { 
   collection, onSnapshot, query, orderBy, addDoc, 
-  doc, getDoc, setDoc, deleteDoc, serverTimestamp, updateDoc
+  doc, getDoc, setDoc, deleteDoc, serverTimestamp, updateDoc 
 } from 'firebase/firestore';
 
-export default function KaeliaDeluxe() {
+export default function KaeliaDeluxeFinal() {
   const [videos, setVideos] = useState<any[]>([]);
   const [users, setUsers] = useState<any>({}); 
   const [search, setSearch] = useState("");
@@ -43,6 +43,41 @@ export default function KaeliaDeluxe() {
       setVideos(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
   }, []);
+
+  // --- FUNCIÓN DE LOGIN (CORREGIDA) ---
+  const handleLogin = async () => {
+    const userKey = loginUser.toLowerCase().trim();
+    if (!userKey || !loginPass) return alert("Completa los campos");
+    
+    try {
+      const userRef = doc(db, "users", userKey);
+      const snap = await getDoc(userRef);
+      
+      if (snap.exists()) {
+        if (snap.data().pass === loginPass) {
+          const userData = snap.data();
+          setCurrentUser(userData);
+          localStorage.setItem('kaelia_user', JSON.stringify(userData));
+          setUserPanelOpen(false);
+        } else {
+          alert("PIN incorrecto");
+        }
+      } else {
+        // Crear usuario si no existe
+        const newUser = { 
+          user: userKey, 
+          pass: loginPass, 
+          pfp: 'https://cdn-icons-png.flaticon.com/512/149/149071.png' 
+        };
+        await setDoc(userRef, newUser);
+        setCurrentUser(newUser);
+        localStorage.setItem('kaelia_user', JSON.stringify(newUser));
+        setUserPanelOpen(false);
+      }
+    } catch (error) {
+      console.error("Error en login:", error);
+    }
+  };
 
   const getRecommended = (currentVid: any) => {
     if (!currentVid) return [];
@@ -85,7 +120,7 @@ export default function KaeliaDeluxe() {
             />
           </div>
 
-          <button onClick={() => setUserPanelOpen(true)} className="w-12 h-12 rounded-full border-2 border-white/10 overflow-hidden bg-zinc-900 hover:border-pink-500 transition-all active:scale-95 shadow-xl">
+          <button onClick={() => setUserPanelOpen(true)} className="w-12 h-12 rounded-full border-2 border-white/10 overflow-hidden bg-zinc-900 hover:border-pink-500 transition-all active:scale-95 shadow-xl flex items-center justify-center">
             {currentUser ? (
               <img src={users[currentUser.user] || currentUser.pfp} className="w-full h-full object-cover" />
             ) : ( <span className="text-xl">👤</span> )}
@@ -113,9 +148,9 @@ export default function KaeliaDeluxe() {
           </div>
         ) : (
           <div className="space-y-4">
-            <input type="text" placeholder="User" className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-sm" onChange={e => setLoginUser(e.target.value)} />
-            <input type="password" placeholder="PIN" className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-sm" onChange={e => setLoginPass(e.target.value)} />
-            <button onClick={handleLogin} className="w-full bg-pink-600 p-4 rounded-2xl font-black text-xs shadow-lg shadow-pink-600/20">ENTRAR</button>
+            <input type="text" placeholder="User" className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-sm outline-none" onChange={e => setLoginUser(e.target.value)} />
+            <input type="password" placeholder="PIN" className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-sm outline-none" onChange={e => setLoginPass(e.target.value)} />
+            <button onClick={handleLogin} className="w-full bg-pink-600 p-4 rounded-2xl font-black text-xs shadow-lg shadow-pink-600/20 active:scale-95 transition-transform">ENTRAR</button>
           </div>
         )}
       </div>
@@ -175,7 +210,6 @@ export default function KaeliaDeluxe() {
           .map((vid) => (
             <div key={vid.id} className="group cursor-pointer relative" onClick={() => setSelectedVid(vid)}>
               
-              {/* BOTONES ADMIN DE ESTRELLA Y BORRADO */}
               {isAdmin && (
                 <div className="absolute top-4 left-4 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button onClick={(e) => {e.stopPropagation(); handleFeatured(vid.id, vid.featured);}} className={`p-2 rounded-xl border backdrop-blur-md transition-all ${vid.featured ? 'bg-yellow-500 border-yellow-400 text-black' : 'bg-black/50 border-white/20 text-white'}`}>
@@ -185,9 +219,8 @@ export default function KaeliaDeluxe() {
                 </div>
               )}
 
-              {/* CORONITA DESTACADA */}
               {vid.featured && (
-                <div className="absolute -top-3 -right-3 z-20 text-3xl drop-shadow-lg animate-bounce">👑</div>
+                <div className="absolute -top-3 -right-3 z-20 text-3xl drop-shadow-lg animate-bounce pointer-events-none">👑</div>
               )}
 
               {/* CONTENEDOR VIDEO CON BORDES */}
@@ -199,7 +232,6 @@ export default function KaeliaDeluxe() {
                 ) : (
                   <iframe src={vid.url} className="w-full h-full pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity" />
                 )}
-                {vid.featured && <div className="absolute inset-0 bg-gradient-to-t from-yellow-500/10 to-transparent pointer-events-none" />}
               </div>
 
               <div className="p-5 flex gap-4">
