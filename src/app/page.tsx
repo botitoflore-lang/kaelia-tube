@@ -265,7 +265,7 @@ export default function KaeliaDeluxeFinal() {
                   <div key={rec.id} onClick={() => setSelectedVid(rec)} className={`flex gap-4 group cursor-pointer p-4 rounded-[35px] transition-all border ${rec.featured ? 'bg-yellow-500/5 border-yellow-500/20' : 'bg-white/5 border-transparent hover:border-white/10'}`}>
                     <div className="w-28 aspect-video bg-black rounded-[18px] overflow-hidden flex-shrink-0 relative shadow-lg">
                       {rec.url.includes('mp4') ? <video muted className="w-full h-full object-cover opacity-50"><source src={rec.url}/></video> : <div className="w-full h-full bg-zinc-900"/>}
-                      {rec.featured && <div className="absolute top-1 right-1 text-[10px] rotate-12 text-red-500">👑</div>}
+                      {rec.featured && <div className="absolute top-1 right-1 text-[10px] rotate+12 text-red-0">👑</div>}
                     </div>
                     <div className="overflow-hidden flex-col flex justify-center space-y-1">
                       <h4 className={`text-[11px] font-black truncate group-hover:text-pink-500 uppercase tracking-tight ${rec.featured ? 'text-yellow-500' : 'text-zinc-200'}`}>{rec.title}</h4>
