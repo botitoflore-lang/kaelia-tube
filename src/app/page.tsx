@@ -6,7 +6,7 @@ import {
   doc, getDoc, setDoc, deleteDoc, serverTimestamp, updateDoc 
 } from 'firebase/firestore';
 
-export default function KaeliaDeluxePremiumFinal() {
+export default function KaeliaUltra() {
   const [videos, setVideos] = useState<any[]>([]);
   const [users, setUsers] = useState<any>({}); 
   const [search, setSearch] = useState("");
@@ -24,8 +24,6 @@ export default function KaeliaDeluxePremiumFinal() {
   const [upTags, setUpTags] = useState("");
   const [loginUser, setLoginUser] = useState("");
   const [loginPass, setLoginPass] = useState("");
-
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const localUser = localStorage.getItem('kaelia_user');
@@ -46,7 +44,7 @@ export default function KaeliaDeluxePremiumFinal() {
 
   const handleLogin = async () => {
     const userKey = loginUser.toLowerCase().trim();
-    if (!userKey || !loginPass) return alert("Completa los campos");
+    if (!userKey || !loginPass) return;
     try {
       const userRef = doc(db, "users", userKey);
       const snap = await getDoc(userRef);
@@ -64,7 +62,7 @@ export default function KaeliaDeluxePremiumFinal() {
         localStorage.setItem('kaelia_user', JSON.stringify(newUser));
         setUserPanelOpen(false);
       }
-    } catch (error) { console.error("Error login:", error); }
+    } catch (e) { console.error(e); }
   };
 
   const getRecommended = (currentVid: any) => {
@@ -73,156 +71,127 @@ export default function KaeliaDeluxePremiumFinal() {
       .filter(v => v.id !== currentVid.id)
       .map(v => ({
         ...v,
-        score: (v.tags?.filter((t: string) => currentVid.tags?.includes(t)).length || 0) + (v.featured ? 5 : 0)
+        score: (v.tags?.filter((t: string) => currentVid.tags?.includes(t)).length || 0) + (v.featured ? 10 : 0)
       }))
-      .sort((a, b) => b.score - a.score || Math.random() - 0.5).slice(0, 8);
-  };
-
-  const handleFeatured = async (vidId: string, currentStatus: boolean) => {
-    await updateDoc(doc(db, "videos", vidId), { featured: !currentStatus });
-  };
-
-  const checkAdminKey = () => {
-    if (adminInput === "1234") {
-      setIsAdmin(true);
-      localStorage.setItem('kaelia_admin', 'true');
-      setShowAdminModal(false);
-      setAdminInput("");
-    } else { alert("Llave incorrecta"); }
+      .sort((a, b) => b.score - a.score).slice(0, 10);
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-100 selection:bg-pink-500/30">
+    <div className="min-h-screen bg-[#020202] text-zinc-100 selection:bg-pink-500/40 font-sans tracking-tight">
       
-      {/* --- NAVBAR --- */}
-      <nav className="sticky top-0 bg-[#050505]/90 backdrop-blur-2xl border-b border-white/5 p-4 z-[100]">
-        <div className="max-w-[1800px] mx-auto flex items-center justify-between gap-4">
-          <button onClick={() => setSidebarOpen(true)} className="p-3 hover:bg-white/5 rounded-full text-pink-500 text-2xl active:scale-90 transition-all">☰</button>
-          <div className="flex-1 max-w-2xl relative">
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar..." className="w-full bg-white/5 border border-white/10 p-3 px-6 rounded-[20px] outline-none focus:border-pink-500/50 text-sm shadow-inner transition-all"/>
+      {/* --- BACKGROUND DECOR --- */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-pink-600/10 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[10%] -right-[10%] w-[30%] h-[30%] bg-blue-600/5 blur-[120px] rounded-full" />
+      </div>
+
+      {/* --- NAVBAR ULTRA --- */}
+      <nav className="sticky top-0 bg-black/60 backdrop-blur-3xl border-b border-white/5 p-4 z-[100] transition-all">
+        <div className="max-w-[1800px] mx-auto flex items-center justify-between gap-6">
+          <button onClick={() => setSidebarOpen(true)} className="w-12 h-12 flex items-center justify-center hover:bg-white/5 rounded-2xl text-pink-500 text-2xl transition-all active:scale-90 shadow-lg">☰</button>
+          
+          <div className="flex-1 max-w-xl relative group">
+            <input 
+              value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="Explorar el multiverso Kaelia..." 
+              className="w-full bg-white/[0.03] border border-white/10 p-3.5 px-8 rounded-2xl outline-none focus:border-pink-500/50 focus:bg-white/[0.05] transition-all text-sm group-hover:border-white/20"
+            />
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-pink-500 transition-colors">⌘K</div>
           </div>
-          <button onClick={() => setUserPanelOpen(true)} className="w-12 h-12 rounded-full border-2 border-white/10 overflow-hidden bg-zinc-900 hover:border-pink-500 active:scale-95 transition-all shadow-xl flex items-center justify-center">
-            {currentUser ? <img src={users[currentUser.user] || currentUser.pfp} className="w-full h-full object-cover" /> : <span className="text-xl">👤</span> }
+
+          <button onClick={() => setUserPanelOpen(true)} className="group relative">
+            <div className="absolute -inset-1 bg-gradient-to-r from-pink-600 to-purple-600 rounded-full blur opacity-20 group-hover:opacity-50 transition duration-500"></div>
+            <div className="relative w-12 h-12 rounded-full border-2 border-white/10 overflow-hidden bg-zinc-900 transition-all group-active:scale-90 shadow-2xl">
+              {currentUser ? <img src={users[currentUser.user] || currentUser.pfp} className="w-full h-full object-cover" /> : <span className="flex h-full items-center justify-center text-xl">👤</span>}
+            </div>
           </button>
         </div>
       </nav>
 
-      {/* --- PANEL USUARIO --- */}
-      <div className={`fixed inset-y-0 right-0 w-80 bg-[#080808] border-l border-white/5 z-[200] transition-transform duration-500 p-8 shadow-2xl ${isUserPanelOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        <div className="flex justify-between items-center mb-10">
-          <span className="font-black text-[10px] tracking-[4px] text-zinc-600 uppercase">Account</span>
-          <button onClick={() => setUserPanelOpen(false)}>✕</button>
+      {/* --- SIDEBAR IZQUIERDA (UPLOAD & MENU) --- */}
+      <div className={`fixed inset-y-0 left-0 w-80 bg-black/80 backdrop-blur-3xl border-r border-white/5 z-[200] transition-all duration-700 ease-in-out p-8 shadow-2xl ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="flex justify-between items-center mb-12">
+          <h3 className="font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-400 italic text-3xl tracking-tighter">KAELIA.</h3>
+          <button onClick={() => setSidebarOpen(false)} className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-red-500/20 hover:text-red-500 transition-all">✕</button>
         </div>
-        {currentUser ? (
-          <div className="space-y-8">
-            <div className="text-center">
-              <img src={users[currentUser.user] || currentUser.pfp} className="w-32 h-32 rounded-[40px] mx-auto border-2 border-pink-500 object-cover p-1 shadow-2xl shadow-pink-500/20" />
-              <h2 className="mt-6 font-black text-2xl italic tracking-tighter uppercase">@{currentUser.user}</h2>
-              {isAdmin && <p className="text-[9px] text-pink-500 font-bold mt-2 tracking-[3px]">SYSTEM ADMIN</p>}
-            </div>
-            <button onClick={() => {localStorage.clear(); location.reload();}} className="w-full bg-red-500/10 text-red-500 p-4 rounded-2xl text-[10px] font-bold hover:bg-red-500/20 transition-all uppercase tracking-widest">Logout</button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <input type="text" placeholder="User" className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none" onChange={e => setLoginUser(e.target.value)} />
-            <input type="password" placeholder="PIN" className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none" onChange={e => setLoginPass(e.target.value)} />
-            <button onClick={handleLogin} className="w-full bg-pink-600 p-4 rounded-2xl font-black shadow-lg shadow-pink-600/20 active:scale-95 transition-all uppercase">ENTRAR</button>
-          </div>
-        )}
-      </div>
+        
+        <div className="space-y-2 mb-12">
+            <button onClick={() => {setSearch(""); setSidebarOpen(false);}} className="w-full text-left p-4 rounded-2xl hover:bg-white/5 transition-all font-bold text-zinc-400 hover:text-white flex items-center gap-3"><span>🏠</span> Explorar</button>
+            {currentUser && <button onClick={() => {setSearch(currentUser.user); setSidebarOpen(false);}} className="w-full text-left p-4 rounded-2xl hover:bg-white/5 transition-all font-bold text-zinc-400 hover:text-white flex items-center gap-3"><span>📂</span> Mis Archivos</button>}
+        </div>
 
-      {/* --- SIDEBAR --- */}
-      <div className={`fixed inset-y-0 left-0 w-72 bg-[#080808] border-r border-white/5 z-[200] transition-transform duration-500 p-8 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="flex justify-between items-center mb-10">
-          <h3 className="font-black text-pink-500 italic text-2xl">KAELIA.</h3>
-          {/* BOTÓN X AGREGADO */}
-          <button onClick={() => setSidebarOpen(false)} className="text-zinc-500 hover:text-white transition-colors">✕</button>
-        </div>
-        <div className="space-y-3 mb-12 font-bold text-sm">
-            <button onClick={() => {setSearch(""); setSidebarOpen(false);}} className="w-full text-left p-4 rounded-2xl hover:bg-white/5">Explorar</button>
-            {currentUser && <button onClick={() => {setSearch(currentUser.user); setSidebarOpen(false);}} className="w-full text-left p-4 rounded-2xl hover:bg-white/5">Mis Archivos</button>}
-        </div>
         {currentUser && (
-          <div className="space-y-4">
-            <p className="text-[10px] text-zinc-600 font-black tracking-widest uppercase">Upload Area</p>
-            <input value={upUrl} onChange={e => setUpUrl(e.target.value)} placeholder="URL Video" className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-xs outline-none" />
-            <input value={upTitle} onChange={e => setUpTitle(e.target.value)} placeholder="Título" className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-xs outline-none" />
-            <input value={upTags} onChange={e => setUpTags(e.target.value)} placeholder="Tags..." className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl text-xs outline-none" />
+          <div className="space-y-4 p-6 bg-white/[0.02] rounded-[32px] border border-white/5">
+            <p className="text-[10px] text-zinc-500 font-black tracking-[3px] uppercase ml-2">Upload Center</p>
+            <input value={upUrl} onChange={e => setUpUrl(e.target.value)} placeholder="URL del video" className="w-full bg-black/40 border border-white/10 p-4 rounded-2xl text-xs outline-none focus:border-pink-500/40" />
+            <input value={upTitle} onChange={e => setUpTitle(e.target.value)} placeholder="Título creativo" className="w-full bg-black/40 border border-white/10 p-4 rounded-2xl text-xs outline-none focus:border-pink-500/40" />
+            <input value={upTags} onChange={e => setUpTags(e.target.value)} placeholder="Tags (ej: pov, neon, night)" className="w-full bg-black/40 border border-white/10 p-4 rounded-2xl text-xs outline-none focus:border-pink-500/40" />
             <button onClick={async () => {
-              if(!upUrl) return;
-              await addDoc(collection(db, "videos"), {
-                title: upTitle || "Sin título", url: upUrl, uploader: currentUser.user,
-                tags: upTags.split(',').map(t => t.trim().toLowerCase()).filter(t => t !== ""),
-                featured: false, timestamp: serverTimestamp()
-              });
-              setUpUrl(""); setUpTitle(""); setUpTags(""); setSidebarOpen(false);
-            }} className="w-full bg-white text-black py-4 rounded-2xl font-black text-[10px] shadow-xl tracking-widest uppercase">SUBIR</button>
+               if(!upUrl) return;
+               await addDoc(collection(db, "videos"), {
+                 title: upTitle || "Untitled", url: upUrl, uploader: currentUser.user,
+                 tags: upTags.split(',').map(t => t.trim().toLowerCase()).filter(t => t !== ""),
+                 featured: false, timestamp: serverTimestamp()
+               });
+               setUpUrl(""); setUpTitle(""); setUpTags(""); setSidebarOpen(false);
+            }} className="w-full bg-gradient-to-r from-pink-600 to-rose-500 text-white py-4 rounded-2xl font-black text-[11px] shadow-lg shadow-pink-600/20 active:scale-95 transition-all uppercase tracking-widest">Publicar Ahora</button>
           </div>
         )}
-        <button onClick={() => setShowAdminModal(true)} className="absolute bottom-8 left-8 right-8 p-3 bg-zinc-900 border border-white/5 rounded-2xl text-[9px] font-black text-zinc-500 hover:text-white uppercase tracking-widest">
-          {isAdmin ? 'ADMIN ACTIVE' : 'SYSTEM KEY'}
-        </button>
       </div>
 
-      {/* --- MODAL ADMIN --- */}
-      {showAdminModal && (
-        <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-300">
-          <div className="bg-[#111] border border-white/10 p-10 rounded-[40px] w-full max-w-sm text-center shadow-2xl">
-            <h2 className="text-xl font-black mb-6 tracking-tighter italic text-white uppercase">System Access</h2>
-            <input type="password" autoFocus className="w-full bg-black border border-white/10 p-5 rounded-3xl text-center text-3xl tracking-[10px] outline-none focus:border-pink-500/50 transition-all mb-6 font-mono text-pink-500" value={adminInput} onChange={e => setAdminInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && checkAdminKey()} />
-            <div className="flex gap-3">
-              <button onClick={() => setShowAdminModal(false)} className="flex-1 p-4 bg-zinc-800 rounded-2xl text-[10px] font-black uppercase tracking-widest">Cerrar</button>
-              <button onClick={checkAdminKey} className="flex-1 p-4 bg-pink-600 rounded-2xl text-[10px] font-black uppercase tracking-widest">Validar</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* --- FEED --- */}
-      <main className="p-6 md:p-10 max-w-[1900px] mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
+      {/* --- FEED DE VIDEOS --- */}
+      <main className="p-6 md:p-12 max-w-[1900px] mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-10">
           {videos.filter(v => v.title?.toLowerCase().includes(search.toLowerCase()) || v.tags?.some((t:any) => t.includes(search.toLowerCase())) || v.uploader?.toLowerCase().includes(search.toLowerCase()))
           .map((vid) => (
-            <div key={vid.id} className="group cursor-pointer relative" onClick={() => setSelectedVid(vid)}>
+            <div key={vid.id} className="group relative" onClick={() => setSelectedVid(vid)}>
               
+              {/* ADMIN CONTROLS (Floating) */}
               {isAdmin && (
-                <div className="absolute top-4 left-4 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={(e) => {e.stopPropagation(); handleFeatured(vid.id, vid.featured);}} className={`p-2 rounded-xl border backdrop-blur-md transition-all ${vid.featured ? 'bg-yellow-500 border-yellow-400 text-black' : 'bg-black/50 border-white/20 text-white'}`}>{vid.featured ? '★' : '☆'}</button>
-                  <button onClick={(e) => {e.stopPropagation(); if(confirm("¿Eliminar?")) deleteDoc(doc(db, "videos", vid.id));}} className="p-2 bg-red-600/80 border border-red-500 rounded-xl text-[10px] font-black">🗑️</button>
+                <div className="absolute top-4 left-4 z-50 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
+                  <button onClick={(e) => {e.stopPropagation(); updateDoc(doc(db, "videos", vid.id), {featured: !vid.featured});}} className={`p-3 rounded-2xl backdrop-blur-2xl border transition-all ${vid.featured ? 'bg-yellow-500 border-yellow-400 text-black shadow-lg shadow-yellow-500/30' : 'bg-black/60 border-white/20 text-white hover:bg-yellow-500/20'}`}>{vid.featured ? '★' : '☆'}</button>
+                  <button onClick={(e) => {e.stopPropagation(); if(confirm("¿Eliminar para siempre?")) deleteDoc(doc(db, "videos", vid.id));}} className="p-3 bg-red-600/60 hover:bg-red-600 border border-red-500 rounded-2xl text-white shadow-lg transition-all">🗑️</button>
                 </div>
               )}
 
-              {/* CONTENEDOR UNIFICADO (VÍDEO + INFO PEGAO') SEGÚN AJUSTE */}
-              <div className={`rounded-[35px] overflow-hidden border-2 transition-all duration-500 relative flex flex-col ${vid.featured ? 'border-yellow-500/50 shadow-yellow-500/10 scale-[1.01] bg-white/[0.03]' : 'border-white/5 bg-white/[0.01] group-hover:border-pink-500/30 group-hover:bg-white/[0.03]'}`}>
+              {/* CONTENEDOR UNIFICADO PREMIUM */}
+              <div className={`relative flex flex-col rounded-[40px] transition-all duration-500 cursor-pointer border-2 overflow-hidden bg-zinc-900/40 backdrop-blur-sm ${vid.featured ? 'border-yellow-500/40 shadow-[0_0_30px_rgba(234,179,8,0.1)] scale-[1.02]' : 'border-white/5 hover:border-pink-500/40 hover:shadow-[0_0_30px_rgba(236,72,153,0.1)]'}`}>
                   
-                  {/* CORONITA ROSA DE LADO */}
+                  {/* CORONA ROSA GLOW */}
                   {vid.featured && (
-                    <div className="absolute top-1 right-1 z-20 text-3xl drop-shadow-[0_0_10px_#ff00ff] rotate-[-15deg] origin-center animate-pulse text-pink-500">👑</div>
+                    <div className="absolute top-3 right-4 z-20 text-3xl drop-shadow-[0_0_15px_#ff00ff] rotate-[-15deg] origin-center animate-pulse">👑</div>
                   )}
 
-                  {/* VÍDEO CON BORDES REDONDEADOS SUPERIORES */}
-                  <div className={`aspect-video bg-black overflow-hidden relative ${vid.featured ? '' : ''}`}>
+                  {/* MINIATURA/VIDEO */}
+                  <div className="aspect-video bg-black overflow-hidden relative">
                     {vid.url.includes('mp4') ? (
-                      <video muted loop playsInline onMouseEnter={e => e.currentTarget.play()} onMouseLeave={e => {e.currentTarget.pause(); e.currentTarget.currentTime = 0;}} className="w-full h-full object-cover grayscale-[15%] group-hover:grayscale-0 transition-all"><source src={vid.url} /></video>
+                      <video muted loop playsInline onMouseEnter={e => e.currentTarget.play()} onMouseLeave={e => {e.currentTarget.pause(); e.currentTarget.currentTime = 0;}} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <source src={vid.url} />
+                      </video>
                     ) : (
                       <iframe src={vid.url} className="w-full h-full pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity" />
                     )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
                   </div>
 
-                  {/* CAPSULA INFO PEGADA AL VÍDEO (NUEVO AJUSTE) */}
-                  <div className={`p-4 border-t ${vid.featured ? 'border-yellow-500/20' : 'border-white/[0.03]'}`}>
-                      <div className="flex gap-4 items-center mb-3">
-                        <img src={users[vid.uploader] || vid.pfp} className={`w-9 h-9 rounded-[14px] object-cover border ${vid.featured ? 'border-yellow-500/50' : 'border-white/10'}`} />
-                        <div className="overflow-hidden flex-1">
-                          <h3 className={`font-black text-[13px] truncate transition-colors leading-tight ${vid.featured ? 'text-yellow-500' : 'group-hover:text-pink-400 text-zinc-200'}`}>{vid.title}</h3>
-                          <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">@{vid.uploader}</p>
-                        </div>
+                  {/* PANEL DE INFORMACIÓN */}
+                  <div className="p-6">
+                    <div className="flex gap-4 items-center mb-4">
+                      <div className="relative">
+                        {vid.featured && <div className="absolute -inset-1 bg-yellow-500 rounded-2xl blur opacity-30 animate-pulse" />}
+                        <img src={users[vid.uploader] || vid.pfp} className={`relative w-11 h-11 rounded-[18px] object-cover border-2 ${vid.featured ? 'border-yellow-500' : 'border-white/10'}`} />
                       </div>
-                      <div className="flex gap-1 overflow-hidden opacity-70 group-hover:opacity-100 transition-opacity">
-                        {vid.tags?.slice(0, 2).map((tag: string) => (
-                          <span key={tag} className="text-[7.5px] bg-white/5 text-zinc-400 px-2.5 py-1 rounded-lg border border-white/5 uppercase font-black tracking-tighter">#{tag}</span>
-                        ))}
+                      <div className="overflow-hidden">
+                        <h3 className={`font-black text-[15px] truncate leading-tight tracking-tight ${vid.featured ? 'text-yellow-400' : 'text-white group-hover:text-pink-400'} transition-colors`}>{vid.title}</h3>
+                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">@{vid.uploader}</p>
                       </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {vid.tags?.slice(0, 3).map((tag: string) => (
+                        <span key={tag} className={`text-[8px] px-3 py-1.5 rounded-xl border font-black uppercase tracking-tighter transition-all ${vid.featured ? 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500' : 'bg-white/5 border-white/5 text-zinc-500 group-hover:text-zinc-300'}`}>#{tag}</span>
+                      ))}
+                    </div>
                   </div>
               </div>
             </div>
@@ -230,62 +199,76 @@ export default function KaeliaDeluxePremiumFinal() {
         </div>
       </main>
 
-      {/* --- MODAL PLAYER --- */}
+      {/* --- MODAL PLAYER ULTRA --- */}
       {selectedVid && (
-        <div className="fixed inset-0 bg-[#050505] z-[2000] overflow-y-auto p-4 md:p-12 animate-in slide-in-from-bottom duration-500">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-12">
-            <div className="lg:col-span-3">
-              <button onClick={() => setSelectedVid(null)} className="mb-8 bg-white/5 p-4 px-10 rounded-full text-[10px] font-black tracking-widest uppercase hover:bg-white/10">← Volver</button>
-              
-              <div key={selectedVid.id} className={`aspect-video w-full bg-black rounded-[50px] overflow-hidden border-4 shadow-2xl ${selectedVid.featured ? 'border-yellow-500 shadow-yellow-500/10' : 'border-white/10 shadow-pink-500/5'}`}>
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-2xl z-[2000] overflow-y-auto animate-in fade-in duration-500 p-4 md:p-12">
+          <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
+            
+            <div className="lg:col-span-9 space-y-8">
+              <button onClick={() => setSelectedVid(null)} className="group flex items-center gap-3 bg-white/5 p-4 px-8 rounded-2xl text-[10px] font-black tracking-widest uppercase hover:bg-white/10 transition-all active:scale-95 border border-white/5">
+                <span className="group-hover:-translate-x-1 transition-transform">←</span> Volver al Feed
+              </button>
+
+              <div className={`relative aspect-video w-full bg-black rounded-[50px] overflow-hidden border-4 shadow-2xl transition-all duration-700 ${selectedVid.featured ? 'border-yellow-500/50 shadow-yellow-500/20' : 'border-white/10 shadow-pink-500/10'}`}>
                 {selectedVid.url.includes('mp4') ? (
-                  <video onEnded={() => {const n = getRecommended(selectedVid)[0]; if(n) setSelectedVid(n);}} controls autoPlay className="w-full h-full object-contain"><source src={selectedVid.url} /></video>
+                  <video controls autoPlay className="w-full h-full object-contain"><source src={selectedVid.url} /></video>
                 ) : (
                   <iframe src={`${selectedVid.url}${selectedVid.url.includes('?') ? '&' : '?'}autoplay=1`} className="w-full h-full" allowFullScreen allow="autoplay" />
                 )}
               </div>
 
-              <div className="mt-10 p-2 space-y-6">
-                <div className="flex items-start justify-between gap-4">
-                    <h2 className={`text-4xl font-black italic tracking-tighter uppercase leading-none ${selectedVid.featured ? 'text-yellow-500' : 'text-white'}`}>{selectedVid.title}</h2>
-                    {selectedVid.featured && <span className="text-4xl -rotate-12 origin-center text-pink-500 drop-shadow-[0_0_10px_#ff00ff]">👑</span>}
-                </div>
-                <div className="flex items-center gap-4">
-                  <img src={users[selectedVid.uploader]} className={`w-14 h-14 rounded-[20px] border-2 object-cover ${selectedVid.featured ? 'border-yellow-500 shadow-yellow-500/10' : 'border-pink-500/20'}`} />
-                  <div>
-                    <span className="text-zinc-500 font-black text-[10px] block tracking-widest uppercase">SHARED BY</span>
-                    <span className="text-white font-black italic text-xl tracking-tighter uppercase">@{selectedVid.uploader}</span>
+              <div className="p-8 bg-white/[0.02] rounded-[40px] border border-white/5 backdrop-blur-md">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+                  <div className="flex items-center gap-6">
+                    <img src={users[selectedVid.uploader]} className={`w-20 h-20 rounded-[28px] border-4 object-cover shadow-2xl ${selectedVid.featured ? 'border-yellow-500' : 'border-pink-500/50'}`} />
+                    <div>
+                      <h2 className={`text-4xl font-black italic tracking-tighter uppercase mb-1 ${selectedVid.featured ? 'text-yellow-500' : 'text-white'}`}>{selectedVid.title}</h2>
+                      <p className="text-zinc-500 font-bold tracking-[4px] uppercase text-xs">Uploader: <span className="text-pink-500">@{selectedVid.uploader}</span></p>
+                    </div>
                   </div>
+                  {selectedVid.featured && <div className="text-6xl drop-shadow-[0_0_20px_rgba(255,0,255,0.6)] animate-bounce text-pink-500">👑</div>}
                 </div>
 
-                <div className="flex flex-wrap gap-2 pt-6">
+                <div className="flex flex-wrap gap-3">
                   {selectedVid.tags?.map((tag: string) => (
-                    <span key={tag} className={`text-[10px] font-black border px-5 py-2.5 rounded-2xl tracking-widest uppercase transition-all ${selectedVid.featured ? 'bg-yellow-500/5 border-yellow-500/30 text-yellow-500' : 'bg-pink-500/5 border-pink-500/20 text-pink-500 hover:bg-pink-500 hover:text-white'}`}>#{tag}</span>
+                    <span key={tag} className="px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-pink-500 hover:text-white transition-all cursor-pointer">#{tag}</span>
                   ))}
                 </div>
               </div>
             </div>
 
-            <div className="space-y-6 lg:pt-20 pt-10">
-              <h3 className="text-pink-500 font-black text-[10px] uppercase tracking-[5px] px-2 mb-8 italic">Up next</h3>
-              <div className="space-y-4">
+            {/* UP NEXT LIST */}
+            <div className="lg:col-span-3 space-y-6">
+              <h3 className="text-pink-500 font-black text-xs uppercase tracking-[6px] italic mb-8 flex items-center gap-2">
+                <span className="w-8 h-[1px] bg-pink-500" /> Siguiente
+              </h3>
+              <div className="space-y-5">
                 {getRecommended(selectedVid).map(rec => (
-                  <div key={rec.id} onClick={() => setSelectedVid(rec)} className={`flex gap-4 group cursor-pointer p-4 rounded-[35px] transition-all border ${rec.featured ? 'bg-yellow-500/5 border-yellow-500/20' : 'bg-white/5 border-transparent hover:border-white/10'}`}>
-                    <div className="w-28 aspect-video bg-black rounded-[18px] overflow-hidden flex-shrink-0 relative shadow-lg">
-                      {rec.url.includes('mp4') ? <video muted className="w-full h-full object-cover opacity-50"><source src={rec.url}/></video> : <div className="w-full h-full bg-zinc-900"/>}
-                      {rec.featured && <div className="absolute top-1 right-1 text-[10px] rotate-12 text-pink-500 drop-shadow-[0_0_5px_#ff00ff]">👑</div>}
+                  <div key={rec.id} onClick={() => setSelectedVid(rec)} className={`group/item flex gap-4 p-4 rounded-[32px] transition-all border cursor-pointer hover:scale-[1.02] ${rec.featured ? 'bg-yellow-500/5 border-yellow-500/20' : 'bg-white/5 border-transparent hover:border-white/10'}`}>
+                    <div className="w-32 aspect-video bg-black rounded-2xl overflow-hidden flex-shrink-0 relative shadow-lg">
+                      <img src={`https://img.youtube.com/vi/${rec.url.split('embed/')[1]}/hqdefault.jpg`} className="w-full h-full object-cover opacity-60 group-hover/item:opacity-100 transition-opacity" alt="" />
+                      {rec.featured && <div className="absolute top-1 right-1 text-xs text-pink-500">👑</div>}
                     </div>
-                    <div className="overflow-hidden flex-col flex justify-center space-y-1">
-                      <h4 className={`text-[11px] font-black truncate group-hover:text-pink-500 uppercase tracking-tight ${rec.featured ? 'text-yellow-500' : 'text-zinc-200'}`}>{rec.title}</h4>
-                      <p className="text-[9px] text-zinc-500 font-black uppercase tracking-tighter">@{rec.uploader}</p>
+                    <div className="flex flex-col justify-center overflow-hidden">
+                      <h4 className={`text-xs font-black truncate uppercase tracking-tight mb-1 ${rec.featured ? 'text-yellow-500' : 'text-zinc-200 group-hover/item:text-pink-500'}`}>{rec.title}</h4>
+                      <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-tighter">@{rec.uploader}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
+
           </div>
         </div>
       )}
+
+      {/* --- ESTILOS EXTRA --- */}
+      <style jsx global>{`
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #020202; }
+        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #ec4899; }
+      `}</style>
     </div>
   );
 }
