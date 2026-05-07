@@ -6,7 +6,7 @@ import {
   doc, getDoc, setDoc, deleteDoc, serverTimestamp, updateDoc 
 } from 'firebase/firestore';
 
-export default function KaeliaDeluxeFinal() {
+export default function KaeliaDeluxePremiumFinal() {
   const [videos, setVideos] = useState<any[]>([]);
   const [users, setUsers] = useState<any>({}); 
   const [search, setSearch] = useState("");
@@ -110,14 +110,14 @@ export default function KaeliaDeluxeFinal() {
       {/* --- PANEL USUARIO --- */}
       <div className={`fixed inset-y-0 right-0 w-80 bg-[#080808] border-l border-white/5 z-[200] transition-transform duration-500 p-8 shadow-2xl ${isUserPanelOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex justify-between items-center mb-10">
-          <span className="font-black text-[10px] tracking-[4px] text-zinc-600">Account</span>
+          <span className="font-black text-[10px] tracking-[4px] text-zinc-600 uppercase">Account</span>
           <button onClick={() => setUserPanelOpen(false)}>✕</button>
         </div>
         {currentUser ? (
           <div className="space-y-8">
             <div className="text-center">
               <img src={users[currentUser.user] || currentUser.pfp} className="w-32 h-32 rounded-[40px] mx-auto border-2 border-pink-500 object-cover p-1 shadow-2xl shadow-pink-500/20" />
-              <h2 className="mt-6 font-black text-2xl italic tracking-tighter">@{currentUser.user}</h2>
+              <h2 className="mt-6 font-black text-2xl italic tracking-tighter uppercase">@{currentUser.user}</h2>
               {isAdmin && <p className="text-[9px] text-pink-500 font-bold mt-2 tracking-[3px]">SYSTEM ADMIN</p>}
             </div>
             <button onClick={() => {localStorage.clear(); location.reload();}} className="w-full bg-red-500/10 text-red-500 p-4 rounded-2xl text-[10px] font-bold hover:bg-red-500/20 transition-all uppercase tracking-widest">Logout</button>
@@ -133,7 +133,11 @@ export default function KaeliaDeluxeFinal() {
 
       {/* --- SIDEBAR --- */}
       <div className={`fixed inset-y-0 left-0 w-72 bg-[#080808] border-r border-white/5 z-[200] transition-transform duration-500 p-8 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <h3 className="font-black text-pink-500 italic text-2xl mb-10">KAELIA.</h3>
+        <div className="flex justify-between items-center mb-10">
+          <h3 className="font-black text-pink-500 italic text-2xl">KAELIA.</h3>
+          {/* BOTÓN X AGREGADO */}
+          <button onClick={() => setSidebarOpen(false)} className="text-zinc-500 hover:text-white transition-colors">✕</button>
+        </div>
         <div className="space-y-3 mb-12 font-bold text-sm">
             <button onClick={() => {setSearch(""); setSidebarOpen(false);}} className="w-full text-left p-4 rounded-2xl hover:bg-white/5">Explorar</button>
             {currentUser && <button onClick={() => {setSearch(currentUser.user); setSidebarOpen(false);}} className="w-full text-left p-4 rounded-2xl hover:bg-white/5">Mis Archivos</button>}
@@ -164,7 +168,7 @@ export default function KaeliaDeluxeFinal() {
       {showAdminModal && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-[1000] flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="bg-[#111] border border-white/10 p-10 rounded-[40px] w-full max-w-sm text-center shadow-2xl">
-            <h2 className="text-xl font-black mb-6 tracking-tighterUppercase text-whiteitalic">System Access</h2>
+            <h2 className="text-xl font-black mb-6 tracking-tighter italic text-white uppercase">System Access</h2>
             <input type="password" autoFocus className="w-full bg-black border border-white/10 p-5 rounded-3xl text-center text-3xl tracking-[10px] outline-none focus:border-pink-500/50 transition-all mb-6 font-mono text-pink-500" value={adminInput} onChange={e => setAdminInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && checkAdminKey()} />
             <div className="flex gap-3">
               <button onClick={() => setShowAdminModal(false)} className="flex-1 p-4 bg-zinc-800 rounded-2xl text-[10px] font-black uppercase tracking-widest">Cerrar</button>
@@ -188,33 +192,37 @@ export default function KaeliaDeluxeFinal() {
                 </div>
               )}
 
-              {/* CORONITA ROJA DE LADO */}
-              {vid.featured && (
-                <div className="absolute -top-1 -right-1 z-20 text-3xl drop-shadow-[0_0_10px_#ff0000] rotate-[-15deg] origin-center animate-pulse text-red-500">👑</div>
-              )}
+              {/* CONTENEDOR UNIFICADO (VÍDEO + INFO PEGAO') SEGÚN AJUSTE */}
+              <div className={`rounded-[35px] overflow-hidden border-2 transition-all duration-500 relative flex flex-col ${vid.featured ? 'border-yellow-500/50 shadow-yellow-500/10 scale-[1.01] bg-white/[0.03]' : 'border-white/5 bg-white/[0.01] group-hover:border-pink-500/30 group-hover:bg-white/[0.03]'}`}>
+                  
+                  {/* CORONITA ROSA DE LADO */}
+                  {vid.featured && (
+                    <div className="absolute top-1 right-1 z-20 text-3xl drop-shadow-[0_0_10px_#ff00ff] rotate-[-15deg] origin-center animate-pulse text-pink-500">👑</div>
+                  )}
 
-              {/* CONTENEDOR VIDEO CON BORDES */}
-              <div className={`aspect-video bg-black rounded-[35px] overflow-hidden border-2 transition-all duration-500 relative shadow-2xl ${vid.featured ? 'border-yellow-500/50 shadow-yellow-500/10 scale-[1.01]' : 'border-white/5 group-hover:border-pink-500/30'}`}>
-                {vid.url.includes('mp4') ? (
-                  <video muted loop playsInline onMouseEnter={e => e.currentTarget.play()} onMouseLeave={e => {e.currentTarget.pause(); e.currentTarget.currentTime = 0;}} className="w-full h-full object-cover grayscale-[15%] group-hover:grayscale-0 transition-all"><source src={vid.url} /></video>
-                ) : (
-                  <iframe src={vid.url} className="w-full h-full pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity" />
-                )}
-              </div>
-
-              {/* CAPSULA INFO (NUEVO AJUSTE SEGÚN IMAGEN) */}
-              <div className={`mt-3 p-4 rounded-[30px] border transition-colors ${vid.featured ? 'bg-white/[0.03] border-yellow-500/20 shadow-lg shadow-yellow-500/5' : 'bg-white/[0.01] border-white/[0.03]'}`}>
-                  <div className="flex gap-4 items-center mb-3">
-                    <img src={users[vid.uploader] || vid.pfp} className={`w-9 h-9 rounded-[14px] object-cover border ${vid.featured ? 'border-yellow-500/50' : 'border-white/10'}`} />
-                    <div className="overflow-hidden flex-1">
-                      <h3 className={`font-black text-[13px] truncate transition-colors leading-tight ${vid.featured ? 'text-yellow-500' : 'group-hover:text-pink-400'}`}>{vid.title}</h3>
-                      <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">@{vid.uploader}</p>
-                    </div>
+                  {/* VÍDEO CON BORDES REDONDEADOS SUPERIORES */}
+                  <div className={`aspect-video bg-black overflow-hidden relative ${vid.featured ? '' : ''}`}>
+                    {vid.url.includes('mp4') ? (
+                      <video muted loop playsInline onMouseEnter={e => e.currentTarget.play()} onMouseLeave={e => {e.currentTarget.pause(); e.currentTarget.currentTime = 0;}} className="w-full h-full object-cover grayscale-[15%] group-hover:grayscale-0 transition-all"><source src={vid.url} /></video>
+                    ) : (
+                      <iframe src={vid.url} className="w-full h-full pointer-events-none opacity-80 group-hover:opacity-100 transition-opacity" />
+                    )}
                   </div>
-                  <div className="flex gap-1 overflow-hidden opacity-70 group-hover:opacity-100 transition-opacity">
-                    {vid.tags?.slice(0, 2).map((tag: string) => (
-                      <span key={tag} className="text-[7.5px] bg-white/5 text-zinc-400 px-2.5 py-1 rounded-lg border border-white/5 uppercase font-black tracking-tighter">#{tag}</span>
-                    ))}
+
+                  {/* CAPSULA INFO PEGADA AL VÍDEO (NUEVO AJUSTE) */}
+                  <div className={`p-4 border-t ${vid.featured ? 'border-yellow-500/20' : 'border-white/[0.03]'}`}>
+                      <div className="flex gap-4 items-center mb-3">
+                        <img src={users[vid.uploader] || vid.pfp} className={`w-9 h-9 rounded-[14px] object-cover border ${vid.featured ? 'border-yellow-500/50' : 'border-white/10'}`} />
+                        <div className="overflow-hidden flex-1">
+                          <h3 className={`font-black text-[13px] truncate transition-colors leading-tight ${vid.featured ? 'text-yellow-500' : 'group-hover:text-pink-400 text-zinc-200'}`}>{vid.title}</h3>
+                          <p className="text-[9px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">@{vid.uploader}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-1 overflow-hidden opacity-70 group-hover:opacity-100 transition-opacity">
+                        {vid.tags?.slice(0, 2).map((tag: string) => (
+                          <span key={tag} className="text-[7.5px] bg-white/5 text-zinc-400 px-2.5 py-1 rounded-lg border border-white/5 uppercase font-black tracking-tighter">#{tag}</span>
+                        ))}
+                      </div>
                   </div>
               </div>
             </div>
@@ -240,7 +248,7 @@ export default function KaeliaDeluxeFinal() {
               <div className="mt-10 p-2 space-y-6">
                 <div className="flex items-start justify-between gap-4">
                     <h2 className={`text-4xl font-black italic tracking-tighter uppercase leading-none ${selectedVid.featured ? 'text-yellow-500' : 'text-white'}`}>{selectedVid.title}</h2>
-                    {selectedVid.featured && <span className="text-4xl -rotate-12 origin-center text-red-500">👑</span>}
+                    {selectedVid.featured && <span className="text-4xl -rotate-12 origin-center text-pink-500 drop-shadow-[0_0_10px_#ff00ff]">👑</span>}
                 </div>
                 <div className="flex items-center gap-4">
                   <img src={users[selectedVid.uploader]} className={`w-14 h-14 rounded-[20px] border-2 object-cover ${selectedVid.featured ? 'border-yellow-500 shadow-yellow-500/10' : 'border-pink-500/20'}`} />
@@ -265,7 +273,7 @@ export default function KaeliaDeluxeFinal() {
                   <div key={rec.id} onClick={() => setSelectedVid(rec)} className={`flex gap-4 group cursor-pointer p-4 rounded-[35px] transition-all border ${rec.featured ? 'bg-yellow-500/5 border-yellow-500/20' : 'bg-white/5 border-transparent hover:border-white/10'}`}>
                     <div className="w-28 aspect-video bg-black rounded-[18px] overflow-hidden flex-shrink-0 relative shadow-lg">
                       {rec.url.includes('mp4') ? <video muted className="w-full h-full object-cover opacity-50"><source src={rec.url}/></video> : <div className="w-full h-full bg-zinc-900"/>}
-                      {rec.featured && <div className="absolute top-1 right-1 text-[10px] rotate+12 text-red-0">👑</div>}
+                      {rec.featured && <div className="absolute top-1 right-1 text-[10px] rotate-12 text-pink-500 drop-shadow-[0_0_5px_#ff00ff]">👑</div>}
                     </div>
                     <div className="overflow-hidden flex-col flex justify-center space-y-1">
                       <h4 className={`text-[11px] font-black truncate group-hover:text-pink-500 uppercase tracking-tight ${rec.featured ? 'text-yellow-500' : 'text-zinc-200'}`}>{rec.title}</h4>
