@@ -96,10 +96,10 @@ export default function KaeliaFinalVersion() {
 
   const askAdminKey = () => {
     const key = prompt("Introduce la llave maestra:");
-    if (key === "1234") { // Cambia esto por tu clave real
+    if (key === "awwa2008") { // Cambia esto por tu clave real
       setIsAdmin(true);
       localStorage.setItem('kaelia_admin', 'true');
-      alert("Acceso total concedido.");
+      alert("WELCOME TO HELL!!! :3");
     }
   };
 
